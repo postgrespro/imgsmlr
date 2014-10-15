@@ -1,0 +1,5 @@
+# imgsmlr extension
+comment = 'image similarity module'
+default_version = '1.0'
+module_pathname = '$libdir/imgsmlr'
+relocatable = true
