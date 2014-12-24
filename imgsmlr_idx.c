@@ -252,8 +252,7 @@ signature_picksplit(PG_FUNCTION_ARGS)
 	bytea	   *datum_alpha,
 			   *datum_beta;
 	bytea	   *datum_l,
-			   *datum_r,
-			   *tmp;
+			   *datum_r;
 	bool		firsttime;
 	float		size_waste,
 				waste;
@@ -265,7 +264,7 @@ signature_picksplit(PG_FUNCTION_ARGS)
 	OffsetNumber *left,
 			   *right;
 	OffsetNumber maxoff;
-	Signature *signature_l, *signature_r, *signature_tmp;
+	Signature *signature_l, *signature_r;
 	bool *distributed;
 	int undistributed_count;
 
@@ -325,10 +324,6 @@ signature_picksplit(PG_FUNCTION_ARGS)
 	signature_r = (Signature  *)VARDATA(datum_r);
 	set_signature(signature_r, DatumGetByteaP(entryvec->vector[seed_2].key));
 	size_r = key_size(datum_r);
-
-	tmp = (bytea *)palloc(2 * sizeof(Signature) + VARHDRSZ);
-	SET_VARSIZE(tmp, 2 * sizeof(Signature) + VARHDRSZ);
-	signature_tmp = (Signature  *)VARDATA(tmp);
 
 	distributed[seed_1] = true;
 	*left++ = seed_1;

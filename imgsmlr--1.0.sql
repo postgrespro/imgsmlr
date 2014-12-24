@@ -83,7 +83,7 @@ CREATE OPERATOR <-> (
 	PROCEDURE = signature_distance
 );
 
-CREATE FUNCTION messup_pattern(pattern)
+CREATE FUNCTION shuffle_pattern(pattern)
 RETURNS pattern
 AS 'MODULE_PATHNAME'
 LANGUAGE C IMMUTABLE STRICT;
