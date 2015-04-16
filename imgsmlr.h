@@ -9,7 +9,7 @@
  * Author: Alexander Korotkov <aekorotkov@gmail.com>
  *
  * IDENTIFICATION
- *    imgsmlr/imgsmlr.c
+ *    imgsmlr/imgsmlr.h
  *-------------------------------------------------------------------------
  */
 #ifndef IMGSMLR_H

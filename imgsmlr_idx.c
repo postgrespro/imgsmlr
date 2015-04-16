@@ -1,5 +1,16 @@
-/*
- * imgsmlr/imgsmlr_idx.c
+/*-------------------------------------------------------------------------
+ *
+ *          Image similarity extension
+ *
+ * Copyright (c) 2013, PostgreSQL Global Development Group
+ *
+ * This software is released under the PostgreSQL Licence.
+ *
+ * Author: Alexander Korotkov <aekorotkov@gmail.com>
+ *
+ * IDENTIFICATION
+ *    imgsmlr/imgsmlr_idx.c
+ *-------------------------------------------------------------------------
  */
 #include "postgres.h"
 #include "fmgr.h"

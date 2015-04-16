@@ -1,5 +1,6 @@
 *.so
 *.o
+*.hex
 regression.diffs
 regression.out
 results

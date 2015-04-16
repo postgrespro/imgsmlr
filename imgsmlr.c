@@ -2,7 +2,7 @@
  *
  *          Image similarity extension
  *
- * Copyright (c) 2013, PostgreSQL Global Development Group
+ * Copyright (c) 2015, PostgreSQL Global Development Group
  *
  * This software is released under the PostgreSQL Licence.
  *

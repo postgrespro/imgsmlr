@@ -44,6 +44,7 @@ Typical installation procedure may look like this:
     $ cd imgsmlr
     $ make USE_PGXS=1
     $ sudo make USE_PGXS=1 install
+    $ make USE_PGXS=1 installcheck
     $ psql DB -c "CREATE EXTENSION imgsmlr;"
 
 Usage
