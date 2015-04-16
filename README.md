@@ -44,16 +44,26 @@ Typical installation procedure may look like this:
     $ cd imgsmlr
     $ make USE_PGXS=1
     $ sudo make USE_PGXS=1 install
-    $ make USE_PGXS=1 installcheck
     $ psql DB -c "CREATE EXTENSION imgsmlr;"
 
 Usage
 -----
 
-| Type      | Storage length |                              Description                           |
+ImgSmlr offers two datatypes: pattern and signature.
+
+| Datatype  | Storage length |                              Description                           |
 | --------- |--------------: | ------------------------------------------------------------------ |
 | pattern   | 16388 bytes    | Result of Haar wavelet transform on the image                      |
 | signature | 64 bytes       | Short representation of pattern for fast search using GiST indexes |
+
+There is set of functions *2pattern(bytea) which converts bynary data in given format into pattern. Convertion into pattern consists of following steps.
+
+ * Decompress image.
+ * Make image black&white.
+ * Resize image to 64x64 pixels.
+ * Apply Haar wavelet transform to the image.
+
+Pattern could be converted into signature and shuffled for less sensitivity to image shift.
 
 |          Function          | Return type |                      Description                    |
 | -------------------------- |-------------| --------------------------------------------------- |
@@ -61,15 +71,21 @@ Usage
 | png2pattern(bytea)         | pattern     | Convert png image into pattern                      |
 | gif2pattern(bytea)         | pattern     | Convert gif image into pattern                      |
 | pattern2signature(pattern) | signature   | Create signature from pattern                       |
-| shuffle_pattern(pattern)   | pattern     | Shuffle pattern for less sensibility to image shift |
+| shuffle_pattern(pattern)   | pattern     | Shuffle pattern for less sensitivity to image shift |
+
+Both pattern and signature datatypes supports `<->` operator for eucledian distance. Signature also supports GiST indexing with KNN on `<->` operator.
 
 | Operator | Left type | Right type | Return type |                Description                |
 | -------- |-----------| ---------- | ----------- | ----------------------------------------- |
 | <->      | pattern   | pattern    | float8      | Eucledian distance between two patterns   |
 | <->      | signature | signature  | float8      | Eucledian distance between two signatures |
 
+The idea is to find top N similar images by signature using GiST index. Then find top n (n < N) similar images by pattern from top N similar images by signature.
+
 Example
 -------
+
+Let us assume we have an `image` table with columns `id` and `data` where `data` column contains binary jpeg data. We can create `pat` table with patterns and signatures of given images using following query.
 
 ```sql
 CREATE TABLE pat AS (
@@ -85,9 +101,16 @@ CREATE TABLE pat AS (
 			image
 	) x 
 );
-CREATE INDEX pat_signature_idx ON pat USING gist (signature);
-CREATE INDEX pat_id_idx ON pat(id);
 ```
+
+Then let's create primary key for `pat` table and GiST index for signatures.
+
+```sql
+ALTER TABLE pat ADD PRIMARY KEY (id);
+CREATE INDEX pat_signature_idx ON pat USING gist (signature);
+```
+
+Prelimimary work is done. Now we can search for top 10  similar images to given image with specified id using following query.
 
 ```sql
 SELECT
@@ -107,3 +130,5 @@ FROM
 ORDER BY x.smlr ASC 
 LIMIT 10
 ```
+
+Inner query selects top 100 images by signature using GiST index. Outer query search for top 10 images by pattern from images found by inner query. You can adjust both of number to achieve better search results on your images collection.
