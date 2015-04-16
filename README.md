@@ -4,7 +4,7 @@ ImgSmlr – similar images search for PostgreSQL
 Introduction
 ------------
 
-ImgSmlr – is an PostgreSQL which implements similar images searching
+ImgSmlr – is a PostgreSQL extension which implements similar images searching
 functionality.
 
 ImgSmlr method is based on Haar wavelet transform. The goal of ImgSmlr is not
