@@ -60,8 +60,8 @@ CREATE TABLE pat AS (
 ALTER TABLE pat ADD PRIMARY KEY (id);
 CREATE INDEX pat_signature_idx ON pat USING gist (signature);
 
-SELECT p1.id, p2.id, p1.pattern <-> p2.pattern FROM pat p1, pat p2 ORDER BY p1.id, p2.id;
-SELECT p1.id, p2.id, p1.signature <-> p2.signature FROM pat p1, pat p2 ORDER BY p1.id, p2.id;
+SELECT p1.id, p2.id, round((p1.pattern <-> p2.pattern)::numeric, 4) FROM pat p1, pat p2 ORDER BY p1.id, p2.id;
+SELECT p1.id, p2.id, round((p1.signature <-> p2.signature)::numeric, 4) FROM pat p1, pat p2 ORDER BY p1.id, p2.id;
 
 SET enable_seqscan = OFF;
 
