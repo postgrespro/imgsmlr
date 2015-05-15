@@ -51,7 +51,7 @@ PG_FUNCTION_INFO_V1(shuffle_pattern);
 Datum		shuffle_pattern(PG_FUNCTION_ARGS);
 
 static Pattern *image2pattern(gdImagePtr im);
-static void formParrent(gdImagePtr im, PatternData *pattern);
+static void makePattern(gdImagePtr im, PatternData *pattern);
 static void normalizePattern(PatternData *pattern);
 static void waveletTransform(PatternData *dst, PatternData *src, int size);
 static float calcSumm(PatternData *pattern, int x, int y, int sX, int sY);
@@ -85,7 +85,7 @@ image2pattern(gdImagePtr im)
 			im->sx, im->sy);
 
 	/* Create source pattern as greyscale image */
-	formParrent(tb, &source);
+	makePattern(tb, &source);
 	gdImageDestroy(tb);
 
 #ifdef DEBUG_INFO
@@ -436,8 +436,11 @@ signature_distance(PG_FUNCTION_ARGS)
 	PG_RETURN_FLOAT4(distance);
 }
 
+/*
+ * Make pattern from gd image.
+ */
 static void
-formParrent(gdImagePtr im, PatternData *pattern)
+makePattern(gdImagePtr im, PatternData *pattern)
 {
 	int i, j;
 	for (i = 0; i < PATTERN_SIZE; i++)
@@ -451,6 +454,10 @@ formParrent(gdImagePtr im, PatternData *pattern)
 		}
 }
 
+/*
+ * Normalize pattern: make it minimal value equal to 0 and
+ * maximum value equal to 1.
+ */
 static void
 normalizePattern(PatternData *pattern)
 {
@@ -475,6 +482,9 @@ normalizePattern(PatternData *pattern)
 	}
 }
 
+/*
+ * Do Haar wavelet transform over pattern.
+ */
 static void
 waveletTransform(PatternData *dst, PatternData *src, int size)
 {
@@ -510,6 +520,9 @@ waveletTransform(PatternData *dst, PatternData *src, int size)
 	}
 }
 
+/*
+ * Calculate summary of squares in rectangle "(x, y) - (x + sX, y + sY)".
+ */
 static float
 calcSumm(PatternData *pattern, int x, int y, int sX, int sY)
 {
@@ -526,6 +539,9 @@ calcSumm(PatternData *pattern, int x, int y, int sX, int sY)
 	return sqrt(summ);
 }
 
+/*
+ * Make short signature from pattern.
+ */
 static void
 calcSignature(PatternData *pattern, Signature *signature)
 {
