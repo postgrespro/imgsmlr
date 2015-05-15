@@ -545,27 +545,19 @@ calcSumm(PatternData *pattern, int x, int y, int sX, int sY)
 static void
 calcSignature(PatternData *pattern, Signature *signature)
 {
-	int size = PATTERN_SIZE;
+	int size = PATTERN_SIZE / 2;
 	int i = 0;
 	float mult = 1.0f;
+
 	while (size > 1)
 	{
 		size /= 2;
-		if (i == 0)
-		{
-			signature->values[0] = mult * calcSumm(pattern, size, 0, size, size);
-			signature->values[0] = mult * calcSumm(pattern, 0, size, size, size);
-			signature->values[0] = mult * calcSumm(pattern, size, size, size, size);
-			i++;
-		}
-		else
-		{
-			signature->values[i++] = mult * calcSumm(pattern, size, 0, size, size);
-			signature->values[i++] = mult * calcSumm(pattern, 0, size, size, size);
-			signature->values[i++] = mult * calcSumm(pattern, size, size, size, size);
-		}
+		signature->values[i++] = mult * calcSumm(pattern, size, 0, size, size);
+		signature->values[i++] = mult * calcSumm(pattern, 0, size, size, size);
+		signature->values[i++] = mult * calcSumm(pattern, size, size, size, size);
 		mult *= 2.0f;
 	}
+	signature->values[SIGNATURE_SIZE - 1] = pattern->values[0][0];
 }
 
 #ifdef DEBUG_INFO
