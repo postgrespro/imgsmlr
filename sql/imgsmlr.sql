@@ -43,8 +43,8 @@ TRUNCATE tmp;
 CREATE TABLE pat AS (
     SELECT
         id,
-        shuffle_pattern(pattern) AS pattern, 
-        pattern2signature(pattern) AS signature 
+        shuffle_pattern(pattern)::text::pattern AS pattern,
+        pattern2signature(pattern)::text::signature AS signature
     FROM (
         SELECT 
             id,

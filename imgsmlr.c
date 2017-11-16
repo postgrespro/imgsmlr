@@ -18,6 +18,7 @@
 #include "fmgr.h"
 #include "imgsmlr.h"
 #include "lib/stringinfo.h"
+#include "utils/builtins.h"
 
 #include <gd.h>
 #include <stdio.h>
@@ -58,6 +59,7 @@ static float calcSumm(PatternData *pattern, int x, int y, int sX, int sY);
 static void calcSignature(PatternData *pattern, Signature *signature);
 static float calcDiff(PatternData *patternA, PatternData *patternB, int x, int y, int sX, int sY);
 static void shuffle(PatternData *dst, PatternData *src, int x, int y, int sX, int sY, int w);
+static float read_float(char **s, char *type_name, char *orig_string);
 
 #ifdef DEBUG_INFO
 static void debugPrintPattern(PatternData *pattern, const char *filename, bool color);
@@ -285,13 +287,56 @@ shuffle_pattern(PG_FUNCTION_ARGS)
 }
 
 /*
- * No input for type "pattern": use "*2pattern" functions.
+ * Read float4 from string while skipping " ()," symbols.
+ */
+static float
+read_float(char **s, char *type_name, char *orig_string)
+{
+	char	c;
+
+	while (true)
+	{
+		c = **s;
+		switch (c)
+		{
+			case ' ':
+			case '(':
+			case ')':
+			case ',':
+				(*s)++;
+				continue;
+			case '\0':
+				ereport(ERROR,
+						(errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
+						 errmsg("invalid input syntax for type %s: \"%s\"",
+								type_name, orig_string)));
+			default:
+				break;
+		}
+		break;
+	}
+
+	return (float) float8in_internal(*s, s, type_name, orig_string);
+}
+
+/*
+ * Input "pattern" type from its textual representation.
  */
 Datum
 pattern_in(PG_FUNCTION_ARGS)
 {
-	elog(ERROR, "pattern_in is not implemented");
-	PG_RETURN_NULL();
+	char	   *source = PG_GETARG_CSTRING(0);
+	Pattern	   *pattern = (Pattern *) palloc(sizeof(Pattern));
+	char	   *s;
+	int			i, j;
+
+	SET_VARSIZE(pattern, sizeof(Pattern));
+	s = source;
+	for (i = 0; i < PATTERN_SIZE; i++)
+		for (j = 0; j < PATTERN_SIZE; j++)
+			pattern->data.values[i][j] = read_float(&s, "pattern", source);
+
+	PG_RETURN_POINTER(pattern);
 }
 
 /*
@@ -301,7 +346,7 @@ Datum
 pattern_out(PG_FUNCTION_ARGS)
 {
 	bytea *patternData = PG_GETARG_BYTEA_P(0);
-	PatternData *pattern = (PatternData *)VARDATA_ANY(patternData);
+	PatternData *pattern = (PatternData *) VARDATA_ANY(patternData);
 	StringInfoData buf;
 	int i, j;
 
@@ -328,13 +373,22 @@ pattern_out(PG_FUNCTION_ARGS)
 }
 
 /*
- * No input for type "signature": use "pattern2signature" functions.
+ * Input "signature" type from its textual representation.
  */
 Datum
 signature_in(PG_FUNCTION_ARGS)
 {
-	elog(ERROR, "signature_in is not implemented");
-	PG_RETURN_NULL();
+	char	   *source = PG_GETARG_CSTRING(0);
+	Signature  *signature = (Signature *) palloc(sizeof(Signature));
+	char	   *s;
+	int			i;
+
+	SET_VARSIZE(signature, sizeof(Signature));
+	s = source;
+	for (i = 0; i < SIGNATURE_SIZE; i++)
+		signature->values[i] = read_float(&s, "signature", source);
+
+	PG_RETURN_POINTER(signature);
 }
 
 /*
