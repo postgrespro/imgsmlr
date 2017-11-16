@@ -22,7 +22,7 @@ Availability
 
 ImgSmlr is released as an extension and not available in default PostgreSQL
 installation. It is available from
-[github](https://github.com/akorotkov/imgsmlr)
+[github](https://github.com/postgrespro/imgsmlr)
 under the same license as
 [PostgreSQL](http://www.postgresql.org/about/licence/)
 and supports PostgreSQL 9.1+.
@@ -40,7 +40,7 @@ Before build and install ImgSmlr you should ensure following:
     
 Typical installation procedure may look like this:
     
-    $ git clone https://github.com/akorotkov/imgsmlr.git
+    $ git clone https://github.com/postgrespro/imgsmlr.git
     $ cd imgsmlr
     $ make USE_PGXS=1
     $ sudo make USE_PGXS=1 install
