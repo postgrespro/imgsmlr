@@ -51,11 +51,12 @@ Datum
 signature_compress(PG_FUNCTION_ARGS)
 {
 	GISTENTRY  *entry = (GISTENTRY *) PG_GETARG_POINTER(0);
-	GISTENTRY  *retval = entry;
 	bytea *res;
 
 	if (entry->leafkey)
 	{
+		GISTENTRY  *retval;
+
 		res = (bytea *)palloc(sizeof(Signature) + VARHDRSZ);
 		SET_VARSIZE(res, sizeof(Signature) + VARHDRSZ);
 		memcpy(VARDATA(res), DatumGetPointer(entry->key), sizeof(Signature));
