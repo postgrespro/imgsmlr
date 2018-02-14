@@ -292,7 +292,9 @@ shuffle_pattern(PG_FUNCTION_ARGS)
 static float
 read_float(char **s, char *type_name, char *orig_string)
 {
-	char	c;
+	char	c,
+		   *start;
+	float	result;
 
 	while (true)
 	{
@@ -316,7 +318,16 @@ read_float(char **s, char *type_name, char *orig_string)
 		break;
 	}
 
-	return (float) float8in_internal(*s, s, type_name, orig_string);
+	start = *s;
+	result = strtof(start, s);
+
+	if (start == *s)
+		ereport(ERROR,
+				(errcode(ERRCODE_INVALID_TEXT_REPRESENTATION),
+				 errmsg("invalid input syntax for type %s: \"%s\"",
+						type_name, orig_string)));
+
+	return result;
 }
 
 /*
