@@ -6,7 +6,7 @@ sudo apt-get update
 
 
 # required packages
-apt_packages="postgresql-$PG_VER postgresql-server-dev-$PG_VER postgresql-common python-pip python-dev build-essential"
+apt_packages="postgresql-$PG_VER postgresql-server-dev-$PG_VER postgresql-common build-essential libgd-dev"
 
 # exit code
 status=0
