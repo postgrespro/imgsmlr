@@ -1,3 +1,4 @@
+.deps
 *.so
 *.o
 *.hex
