@@ -1,3 +1,7 @@
+[![Build Status](https://travis-ci.org/postgrespro/imgsmlr.svg?branch=master)](https://travis-ci.org/postgrespro/imgsmlr)
+[![codecov](https://codecov.io/gh/postgrespro/imgsmlr/branch/master/graph/badge.svg)](https://codecov.io/gh/postgrespro/imgsmlr)
+[![GitHub license](https://img.shields.io/badge/license-PostgreSQL-blue.svg)](https://raw.githubusercontent.com/postgrespro/imgsmlr/master/LICENSE)
+
 ImgSmlr – similar images search for PostgreSQL
 ==============================================
 
