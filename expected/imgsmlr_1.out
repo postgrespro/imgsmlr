@@ -1,0 +1,388 @@
+CREATE EXTENSION imgsmlr;
+CREATE TABLE image (id integer PRIMARY KEY, data bytea);
+CREATE TABLE tmp (data text);
+\copy tmp from 'data/1.jpg.hex'
+INSERT INTO image VALUES (1, (SELECT decode(string_agg(data, ''), 'hex') FROM tmp));
+TRUNCATE tmp;
+\copy tmp from 'data/2.png.hex'
+INSERT INTO image VALUES (2, (SELECT decode(string_agg(data, ''), 'hex') FROM tmp));
+TRUNCATE tmp;
+\copy tmp from 'data/3.gif.hex'
+INSERT INTO image VALUES (3, (SELECT decode(string_agg(data, ''), 'hex') FROM tmp));
+TRUNCATE tmp;
+\copy tmp from 'data/4.jpg.hex'
+INSERT INTO image VALUES (4, (SELECT decode(string_agg(data, ''), 'hex') FROM tmp));
+TRUNCATE tmp;
+\copy tmp from 'data/5.png.hex'
+INSERT INTO image VALUES (5, (SELECT decode(string_agg(data, ''), 'hex') FROM tmp));
+TRUNCATE tmp;
+\copy tmp from 'data/6.gif.hex'
+INSERT INTO image VALUES (6, (SELECT decode(string_agg(data, ''), 'hex') FROM tmp));
+TRUNCATE tmp;
+\copy tmp from 'data/7.jpg.hex'
+INSERT INTO image VALUES (7, (SELECT decode(string_agg(data, ''), 'hex') FROM tmp));
+TRUNCATE tmp;
+\copy tmp from 'data/8.png.hex'
+INSERT INTO image VALUES (8, (SELECT decode(string_agg(data, ''), 'hex') FROM tmp));
+TRUNCATE tmp;
+\copy tmp from 'data/9.gif.hex'
+INSERT INTO image VALUES (9, (SELECT decode(string_agg(data, ''), 'hex') FROM tmp));
+TRUNCATE tmp;
+\copy tmp from 'data/10.jpg.hex'
+INSERT INTO image VALUES (10, (SELECT decode(string_agg(data, ''), 'hex') FROM tmp));
+TRUNCATE tmp;
+\copy tmp from 'data/11.png.hex'
+INSERT INTO image VALUES (11, (SELECT decode(string_agg(data, ''), 'hex') FROM tmp));
+TRUNCATE tmp;
+\copy tmp from 'data/12.gif.hex'
+INSERT INTO image VALUES (12, (SELECT decode(string_agg(data, ''), 'hex') FROM tmp));
+TRUNCATE tmp;
+CREATE TABLE pat AS (
+    SELECT
+        id,
+        shuffle_pattern(pattern)::text::pattern AS pattern,
+        pattern2signature(pattern)::text::signature AS signature
+    FROM (
+        SELECT 
+            id,
+            (CASE WHEN id % 3 = 1 THEN jpeg2pattern(data)
+                  WHEN id % 3 = 2 THEN png2pattern(data)
+                  WHEN id % 3 = 0 THEN gif2pattern(data)
+                  ELSE NULL END) AS pattern 
+        FROM 
+            image
+    ) x 
+);
+ALTER TABLE pat ADD PRIMARY KEY (id);
+CREATE INDEX pat_signature_idx ON pat USING gist (signature);
+SELECT p1.id, p2.id, round((p1.pattern <-> p2.pattern)::numeric, 4) FROM pat p1, pat p2 ORDER BY p1.id, p2.id;
+ id | id | round  
+----+----+--------
+  1 |  1 | 0.0000
+  1 |  2 | 1.5479
+  1 |  3 | 1.6157
+  1 |  4 | 2.8541
+  1 |  5 | 3.1804
+  1 |  6 | 2.7211
+  1 |  7 | 3.7726
+  1 |  8 | 3.8715
+  1 |  9 | 3.8874
+  1 | 10 | 4.7461
+  1 | 11 | 4.3753
+  1 | 12 | 3.5495
+  2 |  1 | 1.5479
+  2 |  2 | 0.0000
+  2 |  3 | 1.2575
+  2 |  4 | 2.7383
+  2 |  5 | 2.8913
+  2 |  6 | 2.6645
+  2 |  7 | 3.7857
+  2 |  8 | 3.8382
+  2 |  9 | 3.8564
+  2 | 10 | 4.9827
+  2 | 11 | 4.5090
+  2 | 12 | 3.7336
+  3 |  1 | 1.6157
+  3 |  2 | 1.2575
+  3 |  3 | 0.0000
+  3 |  4 | 2.7807
+  3 |  5 | 3.0869
+  3 |  6 | 2.7949
+  3 |  7 | 3.8350
+  3 |  8 | 3.9121
+  3 |  9 | 3.9258
+  3 | 10 | 4.8348
+  3 | 11 | 4.4050
+  3 | 12 | 3.6224
+  4 |  1 | 2.8541
+  4 |  2 | 2.7383
+  4 |  3 | 2.7807
+  4 |  4 | 0.0000
+  4 |  5 | 2.4250
+  4 |  6 | 2.0934
+  4 |  7 | 3.7260
+  4 |  8 | 3.6682
+  4 |  9 | 3.6847
+  4 | 10 | 5.0547
+  4 | 11 | 4.6130
+  4 | 12 | 3.8739
+  5 |  1 | 3.1804
+  5 |  2 | 2.8913
+  5 |  3 | 3.0869
+  5 |  4 | 2.4250
+  5 |  5 | 0.0000
+  5 |  6 | 2.9383
+  5 |  7 | 3.5109
+  5 |  8 | 3.4645
+  5 |  9 | 3.4829
+  5 | 10 | 5.1797
+  5 | 11 | 4.7246
+  5 | 12 | 3.8624
+  6 |  1 | 2.7211
+  6 |  2 | 2.6645
+  6 |  3 | 2.7949
+  6 |  4 | 2.0934
+  6 |  5 | 2.9383
+  6 |  6 | 0.0000
+  6 |  7 | 3.6541
+  6 |  8 | 3.7144
+  6 |  9 | 3.7347
+  6 | 10 | 5.1326
+  6 | 11 | 4.5488
+  6 | 12 | 3.9115
+  7 |  1 | 3.7726
+  7 |  2 | 3.7857
+  7 |  3 | 3.8350
+  7 |  4 | 3.7260
+  7 |  5 | 3.5109
+  7 |  6 | 3.6541
+  7 |  7 | 0.0000
+  7 |  8 | 1.2449
+  7 |  9 | 1.2556
+  7 | 10 | 5.0754
+  7 | 11 | 4.6677
+  7 | 12 | 4.0871
+  8 |  1 | 3.8715
+  8 |  2 | 3.8382
+  8 |  3 | 3.9121
+  8 |  4 | 3.6682
+  8 |  5 | 3.4645
+  8 |  6 | 3.7144
+  8 |  7 | 1.2449
+  8 |  8 | 0.0000
+  8 |  9 | 0.0380
+  8 | 10 | 5.2355
+  8 | 11 | 4.8206
+  8 | 12 | 4.1464
+  9 |  1 | 3.8874
+  9 |  2 | 3.8564
+  9 |  3 | 3.9258
+  9 |  4 | 3.6847
+  9 |  5 | 3.4829
+  9 |  6 | 3.7347
+  9 |  7 | 1.2556
+  9 |  8 | 0.0380
+  9 |  9 | 0.0000
+  9 | 10 | 5.2370
+  9 | 11 | 4.8217
+  9 | 12 | 4.1514
+ 10 |  1 | 4.7461
+ 10 |  2 | 4.9827
+ 10 |  3 | 4.8348
+ 10 |  4 | 5.0547
+ 10 |  5 | 5.1797
+ 10 |  6 | 5.1326
+ 10 |  7 | 5.0754
+ 10 |  8 | 5.2355
+ 10 |  9 | 5.2370
+ 10 | 10 | 0.0000
+ 10 | 11 | 3.0530
+ 10 | 12 | 3.1208
+ 11 |  1 | 4.3753
+ 11 |  2 | 4.5090
+ 11 |  3 | 4.4050
+ 11 |  4 | 4.6130
+ 11 |  5 | 4.7246
+ 11 |  6 | 4.5488
+ 11 |  7 | 4.6677
+ 11 |  8 | 4.8206
+ 11 |  9 | 4.8217
+ 11 | 10 | 3.0530
+ 11 | 11 | 0.0000
+ 11 | 12 | 3.1781
+ 12 |  1 | 3.5495
+ 12 |  2 | 3.7336
+ 12 |  3 | 3.6224
+ 12 |  4 | 3.8739
+ 12 |  5 | 3.8624
+ 12 |  6 | 3.9115
+ 12 |  7 | 4.0871
+ 12 |  8 | 4.1464
+ 12 |  9 | 4.1514
+ 12 | 10 | 3.1208
+ 12 | 11 | 3.1781
+ 12 | 12 | 0.0000
+(144 rows)
+
+SELECT p1.id, p2.id, round((p1.signature <-> p2.signature)::numeric, 4) FROM pat p1, pat p2 ORDER BY p1.id, p2.id;
+ id | id | round  
+----+----+--------
+  1 |  1 | 0.0000
+  1 |  2 | 0.5960
+  1 |  3 | 0.6352
+  1 |  4 | 1.1418
+  1 |  5 | 1.3814
+  1 |  6 | 1.5187
+  1 |  7 | 3.1406
+  1 |  8 | 3.4291
+  1 |  9 | 3.4613
+  1 | 10 | 4.0780
+  1 | 11 | 3.3670
+  1 | 12 | 2.4889
+  2 |  1 | 0.5960
+  2 |  2 | 0.0000
+  2 |  3 | 0.7878
+  2 |  4 | 1.1465
+  2 |  5 | 1.2832
+  2 |  6 | 1.4290
+  2 |  7 | 3.2934
+  2 |  8 | 3.5544
+  2 |  9 | 3.5892
+  2 | 10 | 4.4382
+  2 | 11 | 3.6304
+  2 | 12 | 2.8089
+  3 |  1 | 0.6352
+  3 |  2 | 0.7878
+  3 |  3 | 0.0000
+  3 |  4 | 1.0521
+  3 |  5 | 1.3870
+  3 |  6 | 1.4914
+  3 |  7 | 3.0100
+  3 |  8 | 3.2599
+  3 |  9 | 3.2895
+  3 | 10 | 4.0590
+  3 | 11 | 3.2181
+  3 | 12 | 2.4356
+  4 |  1 | 1.1418
+  4 |  2 | 1.1465
+  4 |  3 | 1.0521
+  4 |  4 | 0.0000
+  4 |  5 | 0.5920
+  4 |  6 | 0.7626
+  4 |  7 | 2.6859
+  4 |  8 | 2.9110
+  4 |  9 | 2.9435
+  4 | 10 | 3.8710
+  4 | 11 | 2.9797
+  4 | 12 | 2.1815
+  5 |  1 | 1.3814
+  5 |  2 | 1.2832
+  5 |  3 | 1.3870
+  5 |  4 | 0.5920
+  5 |  5 | 0.0000
+  5 |  6 | 0.6988
+  5 |  7 | 2.9100
+  5 |  8 | 3.1235
+  5 |  9 | 3.1573
+  5 | 10 | 4.0526
+  5 | 11 | 3.2134
+  5 | 12 | 2.3678
+  6 |  1 | 1.5187
+  6 |  2 | 1.4290
+  6 |  3 | 1.4914
+  6 |  4 | 0.7626
+  6 |  5 | 0.6988
+  6 |  6 | 0.0000
+  6 |  7 | 2.8577
+  6 |  8 | 3.0858
+  6 |  9 | 3.1190
+  6 | 10 | 3.7984
+  6 | 11 | 2.7854
+  6 | 12 | 2.0468
+  7 |  1 | 3.1406
+  7 |  2 | 3.2934
+  7 |  3 | 3.0100
+  7 |  4 | 2.6859
+  7 |  5 | 2.9100
+  7 |  6 | 2.8577
+  7 |  7 | 0.0000
+  7 |  8 | 0.6968
+  7 |  9 | 0.7127
+  7 | 10 | 4.3989
+  7 | 11 | 3.5097
+  7 | 12 | 3.2894
+  8 |  1 | 3.4291
+  8 |  2 | 3.5544
+  8 |  3 | 3.2599
+  8 |  4 | 2.9110
+  8 |  5 | 3.1235
+  8 |  6 | 3.0858
+  8 |  7 | 0.6968
+  8 |  8 | 0.0000
+  8 |  9 | 0.0421
+  8 | 10 | 4.6892
+  8 | 11 | 3.7489
+  8 | 12 | 3.5759
+  9 |  1 | 3.4613
+  9 |  2 | 3.5892
+  9 |  3 | 3.2895
+  9 |  4 | 2.9435
+  9 |  5 | 3.1573
+  9 |  6 | 3.1190
+  9 |  7 | 0.7127
+  9 |  8 | 0.0421
+  9 |  9 | 0.0000
+  9 | 10 | 4.6962
+  9 | 11 | 3.7582
+  9 | 12 | 3.5938
+ 10 |  1 | 4.0780
+ 10 |  2 | 4.4382
+ 10 |  3 | 4.0590
+ 10 |  4 | 3.8710
+ 10 |  5 | 4.0526
+ 10 |  6 | 3.7984
+ 10 |  7 | 4.3989
+ 10 |  8 | 4.6892
+ 10 |  9 | 4.6962
+ 10 | 10 | 0.0000
+ 10 | 11 | 1.8257
+ 10 | 12 | 2.0829
+ 11 |  1 | 3.3670
+ 11 |  2 | 3.6304
+ 11 |  3 | 3.2181
+ 11 |  4 | 2.9797
+ 11 |  5 | 3.2134
+ 11 |  6 | 2.7854
+ 11 |  7 | 3.5097
+ 11 |  8 | 3.7489
+ 11 |  9 | 3.7582
+ 11 | 10 | 1.8257
+ 11 | 11 | 0.0000
+ 11 | 12 | 1.2968
+ 12 |  1 | 2.4889
+ 12 |  2 | 2.8089
+ 12 |  3 | 2.4356
+ 12 |  4 | 2.1815
+ 12 |  5 | 2.3678
+ 12 |  6 | 2.0468
+ 12 |  7 | 3.2894
+ 12 |  8 | 3.5759
+ 12 |  9 | 3.5938
+ 12 | 10 | 2.0829
+ 12 | 11 | 1.2968
+ 12 | 12 | 0.0000
+(144 rows)
+
+SET enable_seqscan = OFF;
+SELECT id FROM pat ORDER BY signature <-> (SELECT signature FROM pat WHERE id = 1) LIMIT 3;
+ id 
+----
+  1
+  2
+  3
+(3 rows)
+
+SELECT id FROM pat ORDER BY signature <-> (SELECT signature FROM pat WHERE id = 4) LIMIT 3;
+ id 
+----
+  4
+  5
+  6
+(3 rows)
+
+SELECT id FROM pat ORDER BY signature <-> (SELECT signature FROM pat WHERE id = 7) LIMIT 3;
+ id 
+----
+  7
+  8
+  9
+(3 rows)
+
+SELECT id FROM pat ORDER BY signature <-> (SELECT signature FROM pat WHERE id = 10) LIMIT 3;
+ id 
+----
+ 10
+ 11
+ 12
+(3 rows)
+
