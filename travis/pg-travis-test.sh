@@ -36,7 +36,8 @@ if [ $CHECK_CODE = "true" ]; then
 	if [ "$CC" = "clang" ]; then
 		sudo apt-get -y install -qq clang-$LLVM_VER
 
-		scan-build-$LLVM_VER --status-bugs make USE_PGXS=1 PG_CONFIG=$config_path || status=$?
+		scan-build-$LLVM_VER --status-bugs \
+			make USE_PGXS=1 USE_ASSERT_CHECKING=1 PG_CONFIG=$config_path || status=$?
 		exit $status
 
 	elif [ "$CC" = "gcc" ]; then
@@ -71,7 +72,7 @@ ulimit -c unlimited -S
 echo '/tmp/%e-%s-%p.core' | sudo tee /proc/sys/kernel/core_pattern
 
 # build imgsmlr (using CFLAGS_SL for gcov)
-make USE_PGXS=1 PG_CONFIG=$config_path CFLAGS_SL="$($config_path --cflags_sl) -coverage"
+make USE_PGXS=1 USE_ASSERT_CHECKING=1 PG_CONFIG=$config_path CFLAGS_SL="$($config_path --cflags_sl) -coverage"
 sudo make install USE_PGXS=1 PG_CONFIG=$config_path
 
 # check build

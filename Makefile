@@ -20,6 +20,10 @@ include $(top_builddir)/src/Makefile.global
 include $(top_srcdir)/contrib/contrib-global.mk
 endif
 
+ifdef USE_ASSERT_CHECKING
+override CFLAGS += -DUSE_ASSERT_CHECKING
+endif
+
 installcheck: data/1.jpg.hex data/2.png.hex data/3.gif.hex data/4.jpg.hex data/5.png.hex data/6.gif.hex data/7.jpg.hex data/8.png.hex data/9.gif.hex data/10.jpg.hex data/11.png.hex data/12.gif.hex
 
 data/%.hex: data/%
