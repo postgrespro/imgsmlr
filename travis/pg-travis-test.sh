@@ -2,7 +2,7 @@
 
 set -eux
 
-echo 'PostgreSQL installation' && echo -en 'travis_fold:start:pg_install\\r'
+echo -en 'travis_fold:start:pg_install\\r' && echo 'PostgreSQL installation'
 
 sudo apt-get update
 
@@ -52,7 +52,7 @@ echo -en 'travis_fold:end:pg_install\\r'
 
 # perform code analysis if necessary
 if [ $CHECK_TYPE = "static" ]; then
-	echo 'Static analysis' && echo -en 'travis_fold:start:static_analysis\\r'
+	echo -en 'travis_fold:start:static_analysis\\r' && echo 'Static analysis'
 
 	if [ "$CC" = "clang" ]; then
 		sudo apt-get -y install -qq clang-$LLVM_VER
@@ -82,7 +82,7 @@ if [ $CHECK_TYPE = "static" ]; then
 	exit $status
 fi
 
-echo 'Build extension' && echo -en 'travis_fold:start:build_extension\\r'
+echo -en 'travis_fold:start:build_extension\\r' && echo 'Build extension'
 
 # build extension (using CFLAGS_SL for gcov)
 if [ $CHECK_TYPE == "valgrind" ]; then
@@ -99,7 +99,7 @@ if [ $status -ne 0 ]; then exit $status; fi
 
 echo -en 'travis_fold:end:build_extension\\r'
 
-echo 'Run tests' && echo -en 'travis_fold:start:run_tests\\r'
+echo -en 'travis_fold:start:run_tests\\r' && echo 'Run tests'
 
 # enable core dumps and specify their path
 ulimit -c unlimited -S
@@ -132,7 +132,7 @@ $pg_ctl_path -D $CLUSTER_PATH stop -l postgres.log -w
 
 echo -en 'travis_fold:end:run_tests\\r'
 
-echo 'Check output' && echo -en 'travis_fold:start:output\\r'
+echo -en 'travis_fold:start:output\\r' && echo 'Check output'
 
 # show diff if it exists
 if test -f regression.diffs; then cat regression.diffs; fi
@@ -157,7 +157,7 @@ done
 
 echo -en 'travis_fold:end:output\\r'
 
-echo 'Coverage check' && echo -en 'travis_fold:start:coverage\\r'
+echo -en 'travis_fold:start:coverage\\r' && echo 'Coverage check'
 
 #generate *.gcov files
 if [ $CC = "clang" ]; then
