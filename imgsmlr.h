@@ -37,3 +37,14 @@ typedef struct
 #define CHECK_SIGNATURE_KEY(key) Assert(VARSIZE_ANY_EXHDR(key) == sizeof(Signature) || VARSIZE_ANY_EXHDR(key) == 2 * sizeof(Signature));
 
 #endif   /* IMGSMLR_H */
+
+#ifndef FALSE
+#define FALSE   (0)
+#endif
+
+#ifndef TRUE
+#define TRUE   (1)
+#endif
+#ifndef FALSE
+#define FALSE   (0)
+#endif
