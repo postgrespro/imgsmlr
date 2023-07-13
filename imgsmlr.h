@@ -15,6 +15,14 @@
 #ifndef IMGSMLR_H
 #define IMGSMLR_H
 
+#ifndef FALSE
+#define FALSE   (0)
+#endif
+
+#ifndef TRUE
+#define TRUE    (!FALSE)
+#endif
+
 #define PATTERN_SIZE 64
 #define SIGNATURE_SIZE 16
 
