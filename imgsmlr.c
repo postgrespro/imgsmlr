@@ -13,6 +13,9 @@
  *-------------------------------------------------------------------------
  */
 #include "postgres.h"
+#ifndef VARDATA_ANY
+#include "varatt.h"
+#endif
 
 #include "c.h"
 #include "fmgr.h"

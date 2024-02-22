@@ -13,6 +13,10 @@
  *-------------------------------------------------------------------------
  */
 #include "postgres.h"
+#ifndef VARDATA_ANY
+#include "varatt.h"
+#endif
+
 #include "fmgr.h"
 #include "imgsmlr.h"
 #include "access/gist.h"
@@ -77,19 +81,22 @@ signature_compress(PG_FUNCTION_ARGS)
 Datum
 signature_decompress(PG_FUNCTION_ARGS)
 {
-	GISTENTRY  *entry = (GISTENTRY *) PG_GETARG_POINTER(0);
-	bytea	   *key = DatumGetByteaP(PG_DETOAST_DATUM(entry->key));
+    GISTENTRY  *entry = (GISTENTRY *) PG_GETARG_POINTER(0);
+    bytea	   *detoastedKey = DatumGetByteaP(entry->key);
+    bytea	   *key = (bytea *) entry->key;
 
-	if (key != DatumGetByteaP(entry->key))
-	{
-		GISTENTRY  *retval = (GISTENTRY *) palloc(sizeof(GISTENTRY));
+    // Variable key is the original entry->key before detoasting, and it’s compared with the
+    // detoasted key. If they’re different, a new GISTENTRY is created. Otherwise, the original entry is returned.
+    if (key != detoastedKey)
+    {
+        GISTENTRY  *retval = (GISTENTRY *) palloc(sizeof(GISTENTRY));
 
-		gistentryinit(*retval, PointerGetDatum(key),
-					  entry->rel, entry->page,
-					  entry->offset, FALSE);
-		PG_RETURN_POINTER(retval);
-	}
-	PG_RETURN_POINTER(entry);
+        gistentryinit(*retval, PointerGetDatum(key),
+                      entry->rel, entry->page,
+                      entry->offset, FALSE);
+        PG_RETURN_POINTER(retval);
+    }
+    PG_RETURN_POINTER(entry);
 }
 
 Datum
