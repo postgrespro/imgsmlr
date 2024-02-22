@@ -13,8 +13,10 @@
  *-------------------------------------------------------------------------
  */
 #include "postgres.h"
-#ifndef VARDATA_ANY
+#ifdef PG_VERSION_NUM
+#if PG_VERSION_NUM >= 160000
 #include "varatt.h"
+#endif
 #endif
 
 #include "c.h"
